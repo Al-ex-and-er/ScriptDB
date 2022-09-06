@@ -204,6 +204,7 @@ namespace ScriptDBLib
 
         private void ProcessInputFile(string inputFile)
         {
+            Report("Input file", "", "");
             //parse list of objects out of file
             List<string> list = new List<string>();
             using (StreamReader sr = new StreamReader(inputFile))
@@ -731,7 +732,7 @@ GO
 
                 foreach (Trigger trg in obj.Triggers)
                 {
-                    SaveToFile(obj, path);
+                    SaveToFile(trg, path);
                 }
             }
 
@@ -852,17 +853,17 @@ GO
 
         private void SaveToFile(ScriptNameObjectBase obj, string path)
         {
-            string ParentSchema = string.Empty;
+            string ObjectName = obj.Name.Trim();
+
             if (obj.GetType() == typeof(Trigger))
             {
                 var trg = obj as Trigger;
-                if (trg.Parent.GetType() == typeof(Table))
-                    ParentSchema = (trg.Parent as Table).Schema;
+                ObjectName = (trg.Parent as Table).Schema + "." + ObjectName
             }
 
-            Report("  ", ParentSchema + "." + obj.Name, "");
+            Report("  ", ObjectName, "");
 
-            string fn = Path.Combine(path, ParentSchema + "." + obj.Name.Trim()) + ".sql";
+            string fn = Path.Combine(path, ObjectName) + ".sql";
 
             try
             {
@@ -877,7 +878,7 @@ GO
             }
             catch (Exception ex)
             {
-                Report("  ", ParentSchema + "." + obj.Name, ex.Message);
+                Report("  ", ObjectName, ex.Message);
                 throw;
             }
         }

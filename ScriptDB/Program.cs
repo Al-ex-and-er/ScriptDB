@@ -60,10 +60,13 @@ Available arguments are:
    /uid=u      : User ID to connect to the database (if required).
    /pwd=p      : Password to connect to the database (if required).
    /path=""c:\path"" : Path to store DB objects.
-   /tasks=t    : Comma separated list of tasks (SPROC, TABLE, UDF, UDT, VIEW, TRIG, PS, PF, FILE).
+   /tasks=t    : Comma separated list of tasks (SPROC, TABLE, UDF, UDT, VIEW, TRIG, PS, PF).
    /file       : input file with list of objects
    /forceCreate : script CREATE instead of ALTER
    /noHeaders   : don't add safe-style headers
+
+/tasks or /file should be specified
+
 Example: /Server=SERVER1\SQL2008 /Database=TestDB /Tasks=SPROC,TABLE,UDF,UDT,VIEW
 Example: /Server=SERVER1\SQL2008 /Database=TestDB /File=list.txt
 
@@ -85,10 +88,22 @@ Example: /Server=SERVER1\SQL2008 /Database=TestDB /File=list.txt
                 NoWay = true;
             }
 
+            if (!string.IsNullOrEmpty(InputFile) && !string.IsNullOrEmpty(Tasks))
+            {
+                Console.WriteLine("/tasks OR /file should be specified");
+                NoWay = true;
+            }
+
+            if (string.IsNullOrEmpty(InputFile) && Tasks.Contains("FILE"))
+            {
+                Console.WriteLine("/tasks can't contain FILE");
+                NoWay = true;
+            }
+
             if (!string.IsNullOrEmpty(InputFile))
             {
                 InputFile = System.IO.Path.GetFullPath(InputFile);
-                Tasks = "File=" + InputFile;
+                Tasks = "FILE=" + InputFile;
 
                 if (string.IsNullOrEmpty(Path))
                     Path = AppDomain.CurrentDomain.BaseDirectory;
